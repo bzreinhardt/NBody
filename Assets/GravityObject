@@ -1,0 +1,42 @@
+﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+public class GravityObject : MonoBehaviour {
+	public float mass;
+	public Rigidbody body;
+	
+	// Use this for initialization
+	void Start () {
+		GravityObjects.gravityObjects.Add (this);
+		body = GetComponent<Rigidbody> ();
+	}
+	
+	// Update is called once per frame
+	void Update () {
+		Vector3 appliedForce = new Vector3 ();
+		for (int i = 0; i < GravityObjects.gravityObjects.Count; i++) {
+			if (!GravityObjects.gravityObjects [i].Equals (this)) {
+				appliedForce = appliedForce + FindGravityForce (GravityObjects.gravityObjects[i]);
+			}
+		}
+		body.AddForce(appliedForce);
+	}
+
+	Vector3 FindGravityForce(GravityObject m2) {
+		return GravityObjects.FindGravityForce (this, m2);
+	}
+	
+}
+
+public class GravityObjects {
+	public static float scale = 1;
+	public static List<GravityObject> gravityObjects;
+
+	public static Vector3 FindGravityForce(GravityObject m1, GravityObject m2) {
+		Vector3 direction =  (m2.gameObject.transform.position - m1.gameObject.transform.position);
+		direction.Normalize ();
+		float magnitude = m1.mass*m2.mass/(Mathf.Pow(scale,2)*(m2.gameObject.transform.position - m1.gameObject.transform.position).sqrMagnitude);
+		return direction * magnitude;
+	}
+}
